@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>LuxeRate Pro | Financial Intelligence for Creatives</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&family=Playfair+Display:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    
+    <!-- PayPal SDK (for seamless integration) -->
+    <script src="https://www.paypal.com/sdk/js?client-id=test&currency=USD&components=buttons&enable-funding=paypal,card"></script>
+    
+    <meta property="og:title" content="LuxeRate Pro | Financial Blueprint for Freelancers">
+    <meta property="og:description" content="Privacy-first financial calculator to set sustainable freelance rates. Track expenses, save blueprints, and know your worth.">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #FCF9F2 0%, #F5F0E8 100%);
+            color: #1A1E2B;
+        }
+        h1, h2, h3, .serif {
+            font-family: 'Playfair Display', serif;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.96);
+            backdrop-filter: blur(0px);
+            border: 1px solid rgba(0, 0, 0, 0.04);
+            box-shadow: 0 20px 40px -12px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.02);
+        }
+        .input-modern {
+            transition: all 0.2s ease;
+            background: #FDFCF8;
+            border-bottom: 1.5px solid #E9E5DC;
+        }
+        .input-modern:focus {
+            border-bottom-color: #1A1E2B;
+            outline: none;
+            background: #FFFFFF;
+        }
+        .btn-primary {
+            background: #1A1E2B;
+            transition: all 0.2s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+        }
+        .btn-primary:hover {
+            background: #2D3348;
+            transform: translateY(-1px);
+            box-shadow: 0 8px 20px rgba(26,30,43,0.15);
+        }
+        .btn-secondary {
+            border: 1px solid #D4CFC4;
+            transition: all 0.2s ease;
+        }
+        .btn-secondary:hover {
+            border-color: #1A1E2B;
+            background: #F9F7F2;
+        }
+        .pro-badge {
+            background: linear-gradient(135deg, #D4AF37 0%, #E2C268 100%);
+            color: #1E1B10;
+            font-weight: 700;
+        }
+        .rate-glow {
+            background: linear-gradient(135deg, #FEF9E6 0%, #FFFFFF 100%);
+            box-shadow: 0 15px 35px -15px rgba(0,0,0,0.1);
+        }
+        .expense-row {
+            animation: fadeSlideUp 0.25s ease forwards;
+        }
+        @keyframes fadeSlideUp {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .sticky-card {
+            position: sticky;
+            top: 2rem;
+        }
+        @media print {
+            body * { visibility: hidden; }
+            #blueprint-card, #blueprint-card * { visibility: visible; }
+            #blueprint-card { position: absolute; top: 0; left: 0; width: 100%; margin: 0; padding: 1rem; }
+            .no-print { display: none !important; }
+        }
+        .hover-lift {
+            transition: transform 0.15s ease, box-shadow 0.2s ease;
+        }
+        .hover-lift:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 20px 30px -15px rgba(0,0,0,0.1);
+        }
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 44px;
+            height: 24px;
+        }
+        .toggle-switch input { opacity: 0; width: 0; height: 0; }
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #E4DFD4;
+            transition: 0.3s;
+            border-radius: 34px;
+        }
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: 0.3s;
+            border-radius: 50%;
+        }
+        input:checked + .slider { background-color: #1A1E2B; }
+        input:checked + .slider:before { transform: translateX(20px); }
+        
+        /* Custom PayPal button container styling */
+        .paypal-button-container {
+            margin-top: 0.5rem;
+        }
+        .payment-method-card {
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+        .payment-method-card:hover {
+            background-color: #FDFBF7;
+            border-color: #D4AF37;
+        }
+        .active-payment {
+            border-color: #1A1E2B;
+            background-color: #FCFAF5;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
+        <!-- Header with refined elegance -->
+        <div class="flex flex-col md:flex-row justify-between items-center mb-12 gap-5">
+            <div class="text-center md:text-left">
+                <div class="flex items-center gap-2 justify-center md:justify-start">
+                    <i class="fas fa-gem text-2xl text-stone-600"></i>
+                    <h1 class="text-4xl md:text-5xl font-bold tracking-tight text-stone-800">LuxeRate</h1>
+                    <span class="text-[9px] font-bold uppercase tracking-[0.2em] bg-stone-100 text-stone-500 px-2 py-0.5 rounded-full ml-2">v2.0</span>
+                </div>
+                <p class="text-stone-500 text-sm mt-1 max-w-md">Financial blueprint for independent creators · Zero data tracking</p>
+            </div>
+            <div class="flex gap-3 no-print">
+                <a href="#" onclick="window.print();return false;" class="text-stone-500 hover:text-stone-800 text-sm flex items-center gap-2 border border-stone-200 px-4 py-2 rounded-full transition-all hover:bg-white"><i class="fas fa-print text-xs"></i> <span class="hidden sm:inline">Export</span></a>
+                <button id="open-pro-modal-btn" class="pro-badge text-xs font-bold px-5 py-2 rounded-full shadow-sm flex items-center gap-2 transition-all hover:scale-105"><i class="fas fa-crown text-xs"></i> Unlock Pro</button>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 xl:gap-12">
+            <!-- Left Column: Inputs -->
+            <div class="glass-card rounded-3xl p-6 md:p-8 space-y-7">
+                <div class="flex items-center justify-between border-b border-stone-100 pb-4">
+                    <div>
+                        <h2 class="text-2xl font-semibold tracking-tight">Parameters</h2>
+                        <p class="text-stone-400 text-xs uppercase tracking-wider mt-1">Precision inputs</p>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span id="pro-active-badge" class="text-[9px] font-bold bg-amber-50 text-amber-700 px-2 py-1 rounded-full hidden"><i class="fas fa-star text-[8px] mr-1"></i>PRO ACTIVE</span>
+                    </div>
+                </div>
+
+                <!-- Currency & Primary -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-[11px] font-bold text-stone-400 uppercase tracking-wider mb-2"><i class="fas fa-globe mr-1 text-[10px]"></i> Currency</label>
+                        <select id="currency" class="w-full input-modern py-3 px-1 text-lg font-medium rounded-md focus:ring-0">
+                            <option value="USD">💵 USD - US Dollar</option>
+                            <option value="EUR">💶 EUR - Euro</option>
+                            <option value="GBP">💷 GBP - British Pound</option>
+                            <option value="KSH">🇰🇪 KES - Kenyan Shilling</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-bold text-stone-400 uppercase tracking-wider mb-2"><i class="fas fa-coins mr-1"></i> Target Net Salary / Year</label>
+                        <input type="number" id="net-salary" value="85000" step="1000" class="w-full input-modern py-3 px-1 text-xl font-semibold">
+                    </div>
+                </div>
+
+                <!-- Overhead section: dynamic basic/pro -->
+                <div class="space-y-4">
+                    <div id="basic-overhead-block">
+                        <label class="block text-[11px] font-bold text-stone-400 uppercase tracking-wider mb-2"><i class="fas fa-receipt mr-1"></i> Monthly Overhead (Basic)</label>
+                        <input type="number" id="monthly-overhead" value="550" step="50" class="w-full input-modern py-3 px-1 text-lg">
+                    </div>
+                    
+                    <div id="pro-expense-block" class="hidden space-y-4">
+                        <div class="flex justify-between items-center">
+                            <label class="text-[11px] font-bold text-stone-400 uppercase tracking-wider"><i class="fas fa-list-ul mr-1"></i> Granular Expenses (Pro)</label>
+                            <button id="add-expense-btn" class="text-[10px] font-bold text-stone-500 hover:text-black transition flex items-center gap-1"><i class="fas fa-plus-circle"></i> Add</button>
+                        </div>
+                        <div id="expense-list-container" class="space-y-3 max-h-64 overflow-y-auto pr-1"></div>
+                        <div class="flex justify-between items-center border-t border-stone-100 pt-3 mt-2">
+                            <span class="text-xs font-medium text-stone-500">Total Overhead (monthly)</span>
+                            <span id="pro-total-overhead" class="font-bold text-stone-800 text-lg">$0</span>
+                        </div>
+                    </div>
+
+                    <!-- Toggle between modes -->
+                    <div class="flex items-center justify-between pt-2 border-t border-stone-50 mt-2">
+                        <span class="text-xs text-stone-400 flex items-center gap-1"><i class="fas fa-sliders-h text-[10px]"></i> Pro granular mode</span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="pro-mode-toggle">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Grid: taxes & vacation -->
+                <div class="grid grid-cols-2 gap-5">
+                    <div>
+                        <label class="block text-[11px] font-bold text-stone-400 uppercase tracking-wider mb-2"><i class="fas fa-percent"></i> Tax Rate</label>
+                        <input type="number" id="tax-rate" value="28" step="1" class="w-full input-modern py-3 px-1 text-lg">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-bold text-stone-400 uppercase tracking-wider mb-2"><i class="fas fa-umbrella-beach"></i> Vacation Weeks</label>
+                        <input type="number" id="vacation-weeks" value="4" step="1" class="w-full input-modern py-3 px-1 text-lg">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-[11px] font-bold text-stone-400 uppercase tracking-wider mb-2"><i class="fas fa-clock"></i> Billable Hours / Week</label>
+                    <input type="number" id="billable-hours" value="22" step="1" class="w-full input-modern py-3 px-1 text-lg">
+                </div>
+
+                <!-- Pro Blueprint Management (initially hidden) -->
+                <div id="pro-management-panel" class="hidden border-t border-stone-100 pt-6 mt-2 space-y-4">
+                    <h3 class="text-md font-bold flex items-center gap-2"><i class="fas fa-draw-polygon text-stone-500"></i> Saved Blueprints</h3>
+                    <div class="flex gap-2">
+                        <input type="text" id="blueprint-name-input" placeholder="e.g., 'Safe & Scalable'" class="flex-1 input-modern py-2 text-sm">
+                        <button id="save-blueprint-btn" class="bg-stone-800 text-white px-4 py-2 rounded-xl text-xs font-bold hover:bg-black transition">Save</button>
+                    </div>
+                    <div id="blueprint-list-ui" class="grid gap-2 max-h-48 overflow-y-auto"></div>
+                </div>
+
+                <!-- Small Pro insight -->
+                <div class="text-[10px] text-stone-400 bg-stone-50/50 rounded-xl p-3 flex items-start gap-2">
+                    <i class="fas fa-shield-alt mt-0.5"></i>
+                    <span>All data lives on your device. No cloud storage, total privacy.</span>
+                </div>
+            </div>
+
+            <!-- Right Column: Output Card -->
+            <div class="sticky-card">
+                <div id="blueprint-card" class="glass-card rounded-3xl p-6 md:p-8 transition-all duration-300 hover-lift">
+                    <div class="flex justify-between items-start border-b border-stone-100 pb-5 mb-5">
+                        <div>
+                            <h2 class="text-2xl font-bold tracking-tight">Your Financial<br>Blueprint</h2>
+                            <p id="current-date-display" class="text-stone-400 text-[10px] uppercase tracking-wider mt-1"></p>
+                        </div>
+                        <div class="text-right">
+                            <span class="text-[9px] font-mono text-stone-300 bg-stone-50 px-2 py-1 rounded-full">CONFIDENTIAL</span>
+                        </div>
+                    </div>
+
+                    <!-- Hero rate -->
+                    <div class="rate-glow rounded-2xl py-8 text-center mb-8">
+                        <p class="text-stone-400 text-xs uppercase tracking-widest mb-1">Sustainable Hourly Rate</p>
+                        <p id="display-hourly-rate" class="text-6xl md:text-7xl font-bold text-stone-800 tracking-tight">$0</p>
+                        <p class="text-stone-400 text-[10px] mt-2"><i class="fas fa-chart-line mr-1"></i> break-even + profit margin</p>
+                    </div>
+
+                    <!-- Metrics Grid -->
+                    <div class="grid grid-cols-2 gap-5 mb-8">
+                        <div class="bg-stone-50/70 p-4 rounded-xl">
+                            <p class="text-stone-400 text-[10px] uppercase tracking-wide">Min Project (10h)</p>
+                            <p id="display-baseline" class="text-xl font-bold text-stone-700">$0</p>
+                        </div>
+                        <div class="bg-stone-50/70 p-4 rounded-xl">
+                            <p class="text-stone-400 text-[10px] uppercase tracking-wide">Gross Revenue Needed</p>
+                            <p id="display-gross" class="text-xl font-bold text-stone-700">$0</p>
+                        </div>
+                        <div class="bg-stone-50/70 p-4 rounded-xl">
+                            <p class="text-stone-400 text-[10px] uppercase tracking-wide">Est. Annual Taxes</p>
+                            <p id="display-taxes" class="text-xl font-bold text-stone-700">$0</p>
+                        </div>
+                        <div class="bg-stone-50/70 p-4 rounded-xl">
+                            <p class="text-stone-400 text-[10px] uppercase tracking-wide">Annual Overhead</p>
+                            <p id="display-overhead" class="text-xl font-bold text-stone-700">$0</p>
+                        </div>
+                    </div>
+
+                    <!-- Actions -->
+                    <div class="flex flex-col sm:flex-row gap-3 no-print">
+                        <button onclick="window.print()" class="flex-1 btn-primary text-white py-3 rounded-xl font-semibold text-sm flex items-center justify-center gap-2"><i class="fas fa-download text-xs"></i> Export PDF / Print</button>
+                        <button id="share-results-btn" class="flex-1 btn-secondary bg-white py-3 rounded-xl font-semibold text-sm flex items-center justify-center gap-2"><i class="fas fa-share-alt"></i> Copy Share Link</button>
+                    </div>
+                    <p class="text-center text-stone-400 text-[9px] mt-5 uppercase tracking-wider no-print"><i class="fas fa-lock"></i> Privacy-first · No analytics</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Premium Upgrade Modal (Enhanced with PayPal integration & Payment Details) -->
+    <div id="pro-modal" class="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4 z-50 hidden transition-all duration-300">
+        <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-stone-200 transform transition-all scale-95 max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-start mb-3">
+                <div class="pro-badge px-3 py-1 rounded-full text-xs font-bold">PREMIUM</div>
+                <button id="close-modal-btn" class="text-stone-400 hover:text-black"><i class="fas fa-times"></i></button>
+            </div>
+            <h3 class="text-2xl font-bold mb-2">Elevate to LuxeRate Pro</h3>
+            <p class="text-stone-500 text-sm mb-5">Break down every cost, save unlimited scenarios, and compare financial strategies.</p>
+            
+            <!-- Product features list -->
+            <ul class="space-y-2.5 mb-6">
+                <li class="flex gap-2 text-sm"><i class="fas fa-check-circle text-stone-700 mt-0.5"></i> <span>Itemized expense tracking (software, rent, insurance)</span></li>
+                <li class="flex gap-2 text-sm"><i class="fas fa-check-circle text-stone-700 mt-0.5"></i> <span>Unlimited blueprint saving & versioning</span></li>
+                <li class="flex gap-2 text-sm"><i class="fas fa-check-circle text-stone-700 mt-0.5"></i> <span>Persistent local storage + advanced analytics</span></li>
+                <li class="flex gap-2 text-sm"><i class="fas fa-check-circle text-stone-700 mt-0.5"></i> <span>Compare basic vs pro in one click</span></li>
+            </ul>
+            
+            <!-- Payment Methods Tabs / Integrated PayPal & Card Details -->
+            <div class="mb-6 border border-stone-200 rounded-2xl overflow-hidden bg-stone-50/30">
+                <div class="flex border-b border-stone-200">
+                    <button id="paypal-tab-btn" class="flex-1 py-3 text-sm font-semibold transition-all bg-stone-100 text-stone-800 border-b-2 border-stone-800">PayPal</button>
+                    <button id="card-tab-btn" class="flex-1 py-3 text-sm font-semibold transition-all text-stone-500 hover:text-stone-800">Card / M-Pesa</button>
+                </div>
+                
+                <!-- PayPal Panel -->
+                <div id="paypal-panel" class="p-5">
+                    <div class="text-center mb-3">
+                        <i class="fab fa-paypal text-4xl text-[#0070BA]"></i>
+                        <p class="text-xs text-stone-500 mt-1">Secure checkout via PayPal</p>
+                    </div>
+                    <div id="paypal-button-container" class="paypal-button-container"></div>
+                    <p class="text-[10px] text-stone-400 text-center mt-4">One-time payment of <strong class="text-stone-700">$29.00 USD</strong> · Lifetime access</p>
+                </div>
+                
+                <!-- Card / M-Pesa Panel (PesaPal integration) -->
+                <div id="card-panel" class="p-5 hidden">
+                    <div class="text-center mb-3">
+                        <i class="fas fa-credit-card text-3xl text-stone-600"></i>
+                        <i class="fab fa-cc-visa ml-2 text-2xl"></i>
+                        <i class="fab fa-cc-mastercard ml-1 text-2xl"></i>
+                        <p class="text-xs text-stone-500 mt-1">Cards, M-Pesa & mobile money</p>
+                    </div>
+                    <a href="https://www.pesapal.com/checkout?ConsumerKey=0PuSW9QodI5CauWj4SWyTVKyCMxytPw4" 
+                       target="_blank" 
+                       class="btn-primary text-white w-full py-3 rounded-xl font-bold flex items-center justify-center gap-2 transition-all">
+                        <i class="fas fa-shield-alt"></i> Pay with Card / M-Pesa ($29)
+                    </a>
+                    <p class="text-[10px] text-stone-400 text-center mt-4">Secured by PesaPal · Instant activation after payment</p>
+                </div>
+            </div>
+            
+            <!-- Activation Code Section (Manual entry for existing pro users) -->
+            <div class="border-t border-stone-100 pt-5 mt-1">
+                <label class="block text-[9px] uppercase tracking-wider font-bold text-stone-400 mb-2">Already purchased? Activation code</label>
+                <div class="flex gap-2">
+                    <input type="text" id="activation-code-input" placeholder="XXXX-XXXX-XXXX" class="flex-1 border border-stone-200 rounded-xl px-3 py-2 text-sm uppercase focus:outline-none focus:border-stone-500">
+                    <button id="activate-pro-btn" class="bg-stone-800 text-white px-4 rounded-xl text-xs font-bold hover:bg-black transition">Activate</button>
+                </div>
+                <p class="text-[9px] text-stone-400 mt-3 text-center">One-time purchase · Lifetime Pro access · Instant activation</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ---------- Currency & State ----------
+        const currencyMap = {
+            USD: { locale: 'en-US', currency: 'USD', symbol: '$' },
+            EUR: { locale: 'de-DE', currency: 'EUR', symbol: '€' },
+            GBP: { locale: 'en-GB', currency: 'GBP', symbol: '£' },
+            KSH: { locale: 'en-KE', currency: 'KES', symbol: 'KSh' }
+        };
+
+        let proUnlocked = false;
+        let proModeActive = false;
+        let expenses = [];
+        let blueprints = [];
+
+        // Load persisted data
+        function loadPersisted() {
+            const unlocked = localStorage.getItem('luxerate_pro_unlocked');
+            if (unlocked === 'true') proUnlocked = true;
+            
+            const storedExpenses = localStorage.getItem('luxerate_expenses');
+            if(storedExpenses) expenses = JSON.parse(storedExpenses);
+            else expenses = [{ id: Date.now(), name: "Software & Tools", amount: 85 }, { id: Date.now()+1, name: "Insurance", amount: 120 }];
+            
+            const storedBlueprints = localStorage.getItem('luxerate_blueprints');
+            if(storedBlueprints) blueprints = JSON.parse(storedBlueprints);
+            
+            const proModeState = localStorage.getItem('luxerate_pro_mode_active');
+            if(proModeState === 'true' && proUnlocked) proModeActive = true;
+            else if(!proUnlocked) proModeActive = false;
+            
+            updateUIForProStatus();
+            renderExpenseRows();
+            renderBlueprintsList();
+            if(proModeActive) enableProFeaturesUI();
+            else disableProFeaturesUI();
+            document.getElementById('pro-mode-toggle').checked = proModeActive && proUnlocked;
+        }
+
+        function saveExpenses() { localStorage.setItem('luxerate_expenses', JSON.stringify(expenses)); }
+        function saveBlueprints() { localStorage.setItem('luxerate_blueprints', JSON.stringify(blueprints)); }
+        function saveProModeState() { localStorage.setItem('luxerate_pro_mode_active', proModeActive); }
+
+        function updateUIForProStatus() {
+            const badge = document.getElementById('pro-active-badge');
+            if(proUnlocked && proModeActive) badge.classList.remove('hidden');
+            else badge.classList.add('hidden');
+            
+            const managementPanel = document.getElementById('pro-management-panel');
+            if(proUnlocked && proModeActive) managementPanel.classList.remove('hidden');
+            else managementPanel.classList.add('hidden');
+            
+            const proExpenseBlock = document.getElementById('pro-expense-block');
+            const basicBlock = document.getElementById('basic-overhead-block');
+            if(proUnlocked && proModeActive) {
+                proExpenseBlock.classList.remove('hidden');
+                basicBlock.classList.add('hidden');
+            } else {
+                proExpenseBlock.classList.add('hidden');
+                basicBlock.classList.remove('hidden');
+            }
+        }
+
+        function enableProFeaturesUI() { 
+            proModeActive = true; 
+            updateUIForProStatus(); 
+            saveProModeState(); 
+            calculate(); 
+        }
+        function disableProFeaturesUI() { 
+            proModeActive = false; 
+            updateUIForProStatus(); 
+            calculate(); 
+        }
+
+        // Expenses management
+        function renderExpenseRows() {
+            const container = document.getElementById('expense-list-container');
+            if(!container) return;
+            container.innerHTML = '';
+            expenses.forEach(exp => {
+                const div = document.createElement('div');
+                div.className = 'expense-row flex gap-2 items-center';
+                div.innerHTML = `
+                    <input type="text" value="${escapeHtml(exp.name)}" placeholder="Expense" data-id="${exp.id}" data-field="name" class="expense-name flex-1 bg-transparent border-b border-stone-200 py-1.5 text-sm focus:border-stone-500 outline-none">
+                    <input type="number" value="${exp.amount}" data-id="${exp.id}" data-field="amount" class="expense-amount w-20 text-right bg-transparent border-b border-stone-200 py-1.5 text-sm focus:border-stone-500 outline-none">
+                    <button class="remove-expense text-stone-400 hover:text-red-500 transition" data-id="${exp.id}"><i class="fas fa-trash-alt text-xs"></i></button>
+                `;
+                container.appendChild(div);
+            });
+            attachExpenseEvents();
+        }
+
+        function attachExpenseEvents() {
+            document.querySelectorAll('.expense-name, .expense-amount').forEach(inp => {
+                inp.removeEventListener('change', handleExpChange);
+                inp.addEventListener('change', handleExpChange);
+            });
+            document.querySelectorAll('.remove-expense').forEach(btn => {
+                btn.removeEventListener('click', handleExpRemove);
+                btn.addEventListener('click', handleExpRemove);
+            });
+        }
+
+        function handleExpChange(e) {
+            const id = parseInt(e.target.dataset.id);
+            const field = e.target.dataset.field;
+            const value = field === 'amount' ? parseFloat(e.target.value) || 0 : e.target.value;
+            const expense = expenses.find(exp => exp.id === id);
+            if(expense) expense[field] = value;
+            saveExpenses();
+            calculate();
+        }
+
+        function handleExpRemove(e) {
+            const id = parseInt(e.target.closest('.remove-expense')?.dataset?.id);
+            if(id) { expenses = expenses.filter(exp => exp.id !== id); saveExpenses(); renderExpenseRows(); calculate(); }
+        }
+
+        function addExpense() {
+            const newId = Date.now();
+            expenses.push({ id: newId, name: "New Expense", amount: 0 });
+            saveExpenses();
+            renderExpenseRows();
+            calculate();
+        }
+
+        // Blueprints
+        function saveCurrentBlueprint() {
+            const nameInput = document.getElementById('blueprint-name-input');
+            const name = nameInput.value.trim() || `Plan ${blueprints.length+1}`;
+            const inputsSnapshot = {
+                netSalary: document.getElementById('net-salary').value,
+                monthlyOverhead: document.getElementById('monthly-overhead').value,
+                taxRate: document.getElementById('tax-rate').value,
+                vacationWeeks: document.getElementById('vacation-weeks').value,
+                billableHours: document.getElementById('billable-hours').value,
+                currency: document.getElementById('currency').value,
+                expenses: JSON.parse(JSON.stringify(expenses)),
+                proMode: proModeActive
+            };
+            blueprints.unshift({ id: Date.now(), name, inputs: inputsSnapshot });
+            saveBlueprints();
+            renderBlueprintsList();
+            nameInput.value = '';
+        }
+
+        function loadBlueprint(bp) {
+            document.getElementById('net-salary').value = bp.inputs.netSalary;
+            document.getElementById('monthly-overhead').value = bp.inputs.monthlyOverhead;
+            document.getElementById('tax-rate').value = bp.inputs.taxRate;
+            document.getElementById('vacation-weeks').value = bp.inputs.vacationWeeks;
+            document.getElementById('billable-hours').value = bp.inputs.billableHours;
+            document.getElementById('currency').value = bp.inputs.currency;
+            if(bp.inputs.expenses && proUnlocked) {
+                expenses = JSON.parse(JSON.stringify(bp.inputs.expenses));
+                saveExpenses();
+                renderExpenseRows();
+            }
+            if(bp.inputs.proMode && proUnlocked) {
+                proModeActive = true;
+                document.getElementById('pro-mode-toggle').checked = true;
+                enableProFeaturesUI();
+            } else {
+                proModeActive = false;
+                document.getElementById('pro-mode-toggle').checked = false;
+                disableProFeaturesUI();
+            }
+            calculate();
+        }
+
+        function renderBlueprintsList() {
+            const container = document.getElementById('blueprint-list-ui');
+            if(!container) return;
+            if(blueprints.length === 0) { container.innerHTML = '<p class="text-stone-400 text-[10px] italic">No saved blueprints</p>'; return; }
+            container.innerHTML = blueprints.map(bp => `
+                <div class="flex items-center justify-between bg-stone-50/60 p-2 rounded-xl group">
+                    <button class="load-bp-btn text-left flex-1" data-id="${bp.id}">
+                        <span class="text-xs font-medium">${escapeHtml(bp.name)}</span>
+                        <span class="text-[9px] text-stone-400 block">${bp.inputs.currency} · ${bp.inputs.proMode ? 'Pro' : 'Basic'}</span>
+                    </button>
+                    <button class="delete-bp-btn text-stone-300 hover:text-red-500 pl-2" data-id="${bp.id}"><i class="fas fa-times-circle"></i></button>
+                </div>
+            `).join('');
+            document.querySelectorAll('.load-bp-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => { const id = parseInt(btn.dataset.id); const bp = blueprints.find(b => b.id === id); if(bp) loadBlueprint(bp); });
+            });
+            document.querySelectorAll('.delete-bp-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => { e.stopPropagation(); const id = parseInt(btn.dataset.id); deleteBlueprint(id); });
+            });
+        }
+
+        function deleteBlueprint(id) {
+            blueprints = blueprints.filter(b => b.id !== id);
+            saveBlueprints();
+            renderBlueprintsList();
+        }
+
+        // Calculation engine
+        function calculate() {
+            const currencyCode = document.getElementById('currency').value;
+            const cfg = currencyMap[currencyCode];
+            const formatter = new Intl.NumberFormat(cfg.locale, { style: 'currency', currency: cfg.currency, maximumFractionDigits: 0 });
+            
+            let netSalary = parseFloat(document.getElementById('net-salary').value) || 0;
+            let monthlyOverhead = 0;
+            if(proUnlocked && proModeActive) {
+                monthlyOverhead = expenses.reduce((sum, e) => sum + (parseFloat(e.amount) || 0), 0);
+                document.getElementById('pro-total-overhead').innerHTML = formatter.format(monthlyOverhead);
+            } else {
+                monthlyOverhead = parseFloat(document.getElementById('monthly-overhead').value) || 0;
+            }
+            let taxRate = parseFloat(document.getElementById('tax-rate').value) || 0;
+            let vacationWeeks = parseFloat(document.getElementById('vacation-weeks').value) || 0;
+            let billableHours = parseFloat(document.getElementById('billable-hours').value) || 0;
+            
+            const annualOverhead = monthlyOverhead * 12;
+            const taxMultiplier = 1 / (1 - (taxRate/100));
+            const grossRevenue = (netSalary + annualOverhead) * taxMultiplier;
+            const totalWorkingWeeks = Math.max(0, 52 - vacationWeeks);
+            const totalBillable = totalWorkingWeeks * billableHours;
+            let hourlyRate = totalBillable > 0 ? grossRevenue / totalBillable : 0;
+            const baselineProject = hourlyRate * 10;
+            const annualTaxes = grossRevenue - netSalary - annualOverhead;
+            
+            document.getElementById('display-hourly-rate').innerHTML = formatter.format(hourlyRate);
+            document.getElementById('display-baseline').innerHTML = formatter.format(baselineProject);
+            document.getElementById('display-gross').innerHTML = formatter.format(grossRevenue);
+            document.getElementById('display-taxes').innerHTML = formatter.format(annualTaxes);
+            document.getElementById('display-overhead').innerHTML = formatter.format(annualOverhead);
+        }
+
+        function escape
