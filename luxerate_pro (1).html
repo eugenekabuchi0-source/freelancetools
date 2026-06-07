@@ -1,0 +1,1609 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>LuxeRate Pro | Financial Intelligence for Creatives</title>
+    <meta property="og:title" content="LuxeRate Pro | Financial Blueprint for Freelancers">
+    <meta property="og:description" content="Privacy-first financial calculator to set sustainable freelance rates.">
+    <meta property="og:type" content="website">
+    <meta name="twitter:card" content="summary_large_image">
+
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --bg: #0D0D0F;
+            --bg2: #131316;
+            --bg3: #1A1A1F;
+            --border: rgba(255,255,255,0.07);
+            --border-bright: rgba(255,255,255,0.14);
+            --gold: #C9A96E;
+            --gold-light: #E2C99A;
+            --gold-dim: rgba(201,169,110,0.15);
+            --text: #F0EDE8;
+            --text-muted: #7A7872;
+            --text-mid: #A8A49E;
+            --red: #E05A5A;
+            --green: #5ABF8A;
+            --font-display: 'Cormorant Garamond', serif;
+            --font-mono: 'DM Mono', monospace;
+            --font-body: 'DM Sans', sans-serif;
+            --radius: 16px;
+            --radius-sm: 10px;
+            --shadow: 0 24px 64px rgba(0,0,0,0.5);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: var(--font-body);
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Grain overlay */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+            pointer-events: none;
+            z-index: 999;
+            opacity: 0.4;
+        }
+
+        /* Ambient glow */
+        body::after {
+            content: '';
+            position: fixed;
+            top: -20%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 800px;
+            height: 400px;
+            background: radial-gradient(ellipse, rgba(201,169,110,0.06) 0%, transparent 70%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .wrapper {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 24px;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* ── HEADER ── */
+        header {
+            padding: 28px 0 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .logo-group {
+            display: flex;
+            align-items: baseline;
+            gap: 12px;
+        }
+
+        .logo {
+            font-family: var(--font-display);
+            font-size: 2rem;
+            font-weight: 600;
+            color: var(--text);
+            letter-spacing: -0.01em;
+            line-height: 1;
+        }
+
+        .logo span {
+            color: var(--gold);
+        }
+
+        .version-badge {
+            font-family: var(--font-mono);
+            font-size: 9px;
+            letter-spacing: 0.15em;
+            color: var(--text-muted);
+            background: var(--bg3);
+            border: 1px solid var(--border);
+            padding: 3px 8px;
+            border-radius: 20px;
+            text-transform: uppercase;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .btn-ghost {
+            font-family: var(--font-body);
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--text-muted);
+            background: transparent;
+            border: 1px solid var(--border);
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            text-decoration: none;
+        }
+
+        .btn-ghost:hover {
+            color: var(--text);
+            border-color: var(--border-bright);
+            background: var(--bg3);
+        }
+
+        .btn-gold {
+            font-family: var(--font-body);
+            font-size: 12px;
+            font-weight: 600;
+            color: #1A1409;
+            background: linear-gradient(135deg, var(--gold) 0%, var(--gold-light) 100%);
+            border: none;
+            padding: 9px 18px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            letter-spacing: 0.02em;
+        }
+
+        .btn-gold:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px rgba(201,169,110,0.3);
+        }
+
+        /* ── TAGLINE ── */
+        .tagline-bar {
+            padding: 14px 0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 36px;
+        }
+
+        .tagline {
+            font-family: var(--font-display);
+            font-size: 1.1rem;
+            font-style: italic;
+            color: var(--text-muted);
+            font-weight: 300;
+        }
+
+        .privacy-pill {
+            font-family: var(--font-mono);
+            font-size: 9px;
+            letter-spacing: 0.12em;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            text-transform: uppercase;
+        }
+
+        .privacy-pill::before {
+            content: '';
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            background: var(--green);
+            box-shadow: 0 0 6px var(--green);
+            animation: pulse-dot 2s ease infinite;
+        }
+
+        @keyframes pulse-dot {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
+        }
+
+        /* ── MAIN GRID ── */
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 420px;
+            gap: 24px;
+            align-items: start;
+        }
+
+        @media (max-width: 900px) {
+            .main-grid { grid-template-columns: 1fr; }
+            .sticky-col { position: static !important; }
+        }
+
+        /* ── PANEL ── */
+        .panel {
+            background: var(--bg2);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 28px;
+            transition: border-color 0.3s;
+        }
+
+        .panel:hover {
+            border-color: var(--border-bright);
+        }
+
+        .panel-title {
+            font-family: var(--font-display);
+            font-size: 1.35rem;
+            font-weight: 500;
+            color: var(--text);
+            letter-spacing: 0.01em;
+            margin-bottom: 4px;
+        }
+
+        .panel-sub {
+            font-family: var(--font-mono);
+            font-size: 9px;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            margin-bottom: 28px;
+        }
+
+        .section-divider {
+            border: none;
+            border-top: 1px solid var(--border);
+            margin: 24px 0;
+        }
+
+        /* ── FORM FIELDS ── */
+        .field-group {
+            margin-bottom: 22px;
+        }
+
+        .field-label {
+            font-family: var(--font-mono);
+            font-size: 9px;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .field-label i {
+            font-size: 8px;
+            color: var(--gold);
+        }
+
+        .field-input {
+            width: 100%;
+            background: var(--bg3);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: 12px 14px;
+            font-family: var(--font-mono);
+            font-size: 1rem;
+            font-weight: 400;
+            color: var(--text);
+            transition: all 0.2s;
+            outline: none;
+            appearance: none;
+            -webkit-appearance: none;
+        }
+
+        .field-input:focus {
+            border-color: var(--gold);
+            background: rgba(201,169,110,0.04);
+            box-shadow: 0 0 0 3px rgba(201,169,110,0.08);
+        }
+
+        .field-input::placeholder { color: var(--text-muted); }
+
+        input[type="number"]::-webkit-inner-spin-button,
+        input[type="number"]::-webkit-outer-spin-button { opacity: 0.2; }
+        input[type="number"]:hover::-webkit-inner-spin-button { opacity: 0.6; }
+
+        select.field-input option {
+            background: var(--bg3);
+            color: var(--text);
+        }
+
+        .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+
+        /* ── TOGGLE ── */
+        .toggle-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 16px;
+            background: var(--bg3);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            margin-top: 16px;
+        }
+
+        .toggle-label {
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--text-mid);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .toggle-label i { color: var(--gold); font-size: 10px; }
+
+        .toggle-switch {
+            position: relative;
+            width: 42px;
+            height: 23px;
+            flex-shrink: 0;
+        }
+
+        .toggle-switch input { opacity: 0; width: 0; height: 0; }
+
+        .toggle-track {
+            position: absolute;
+            inset: 0;
+            background: var(--bg);
+            border: 1px solid var(--border-bright);
+            border-radius: 23px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .toggle-track::after {
+            content: '';
+            position: absolute;
+            width: 17px;
+            height: 17px;
+            left: 2px;
+            top: 2px;
+            background: var(--text-muted);
+            border-radius: 50%;
+            transition: 0.3s;
+        }
+
+        .toggle-switch input:checked + .toggle-track {
+            background: var(--gold-dim);
+            border-color: var(--gold);
+        }
+
+        .toggle-switch input:checked + .toggle-track::after {
+            transform: translateX(19px);
+            background: var(--gold);
+        }
+
+        /* ── PRO ACTIVE BADGE ── */
+        #pro-active-badge {
+            font-family: var(--font-mono);
+            font-size: 8px;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: var(--gold);
+            background: var(--gold-dim);
+            border: 1px solid rgba(201,169,110,0.25);
+            padding: 3px 9px;
+            border-radius: 20px;
+        }
+
+        /* ── EXPENSE ROWS ── */
+        .expense-row {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            animation: fadeUp 0.2s ease forwards;
+        }
+
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .expense-name-input, .expense-amount-input {
+            background: transparent;
+            border: none;
+            border-bottom: 1px solid var(--border);
+            color: var(--text);
+            font-family: var(--font-mono);
+            font-size: 12px;
+            padding: 7px 4px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .expense-name-input { flex: 1; }
+        .expense-amount-input { width: 70px; text-align: right; }
+
+        .expense-name-input:focus, .expense-amount-input:focus {
+            border-bottom-color: var(--gold);
+        }
+
+        .btn-remove-expense {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            padding: 4px;
+            transition: color 0.2s;
+            font-size: 11px;
+        }
+
+        .btn-remove-expense:hover { color: var(--red); }
+
+        .btn-add-expense {
+            background: none;
+            border: 1px dashed var(--border-bright);
+            color: var(--text-muted);
+            font-family: var(--font-mono);
+            font-size: 10px;
+            letter-spacing: 0.1em;
+            padding: 8px 14px;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            width: 100%;
+            justify-content: center;
+            margin-top: 10px;
+        }
+
+        .btn-add-expense:hover {
+            border-color: var(--gold);
+            color: var(--gold);
+        }
+
+        .overhead-total {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0 0;
+            border-top: 1px solid var(--border);
+            margin-top: 12px;
+        }
+
+        .overhead-total-label {
+            font-family: var(--font-mono);
+            font-size: 10px;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--text-muted);
+        }
+
+        #pro-total-overhead {
+            font-family: var(--font-mono);
+            font-size: 1rem;
+            font-weight: 500;
+            color: var(--gold);
+        }
+
+        /* ── BLUEPRINTS ── */
+        .blueprint-input-row {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .blueprint-input-row .field-input {
+            font-size: 12px;
+            padding: 9px 12px;
+        }
+
+        .btn-save {
+            background: var(--bg3);
+            border: 1px solid var(--border-bright);
+            color: var(--text);
+            font-family: var(--font-mono);
+            font-size: 10px;
+            letter-spacing: 0.08em;
+            padding: 9px 14px;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+
+        .btn-save:hover {
+            border-color: var(--gold);
+            color: var(--gold);
+        }
+
+        .blueprint-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 9px 12px;
+            background: var(--bg3);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            transition: border-color 0.2s;
+            gap: 8px;
+        }
+
+        .blueprint-item:hover { border-color: var(--border-bright); }
+
+        .bp-load-btn {
+            background: none;
+            border: none;
+            text-align: left;
+            flex: 1;
+            cursor: pointer;
+            padding: 0;
+        }
+
+        .bp-name {
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--text);
+            display: block;
+        }
+
+        .bp-meta {
+            font-family: var(--font-mono);
+            font-size: 9px;
+            color: var(--text-muted);
+            letter-spacing: 0.08em;
+            margin-top: 2px;
+            display: block;
+        }
+
+        .bp-delete-btn {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            font-size: 11px;
+            padding: 4px;
+            transition: color 0.2s;
+            flex-shrink: 0;
+        }
+
+        .bp-delete-btn:hover { color: var(--red); }
+
+        /* ── RIGHT COLUMN ── */
+        .sticky-col {
+            position: sticky;
+            top: 24px;
+        }
+
+        /* ── OUTPUT CARD ── */
+        .output-card {
+            background: var(--bg2);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            overflow: hidden;
+            transition: border-color 0.3s;
+        }
+
+        .output-card:hover { border-color: var(--border-bright); }
+
+        .output-header {
+            padding: 24px 28px 20px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+
+        .output-header-left h2 {
+            font-family: var(--font-display);
+            font-size: 1.4rem;
+            font-weight: 500;
+            color: var(--text);
+            line-height: 1.2;
+        }
+
+        #current-date-display {
+            font-family: var(--font-mono);
+            font-size: 9px;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            margin-top: 5px;
+        }
+
+        .confidential-badge {
+            font-family: var(--font-mono);
+            font-size: 8px;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            border: 1px solid var(--border);
+            padding: 4px 9px;
+            border-radius: 20px;
+        }
+
+        /* ── HERO RATE ── */
+        .hero-rate {
+            padding: 36px 28px;
+            text-align: center;
+            position: relative;
+            border-bottom: 1px solid var(--border);
+            background: linear-gradient(180deg, rgba(201,169,110,0.04) 0%, transparent 100%);
+        }
+
+        .hero-rate-label {
+            font-family: var(--font-mono);
+            font-size: 9px;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            margin-bottom: 10px;
+        }
+
+        #display-hourly-rate {
+            font-family: var(--font-display);
+            font-size: clamp(3rem, 8vw, 4.5rem);
+            font-weight: 600;
+            color: var(--gold);
+            letter-spacing: -0.02em;
+            line-height: 1;
+            text-shadow: 0 0 60px rgba(201,169,110,0.2);
+            transition: all 0.3s ease;
+        }
+
+        .hero-rate-sub {
+            font-family: var(--font-mono);
+            font-size: 9px;
+            letter-spacing: 0.1em;
+            color: var(--text-muted);
+            margin-top: 10px;
+        }
+
+        /* ── METRIC GRID ── */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1px;
+            background: var(--border);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .metric-cell {
+            background: var(--bg2);
+            padding: 20px 22px;
+            transition: background 0.2s;
+        }
+
+        .metric-cell:hover { background: var(--bg3); }
+
+        .metric-label {
+            font-family: var(--font-mono);
+            font-size: 8px;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+        }
+
+        .metric-value {
+            font-family: var(--font-mono);
+            font-size: 1.15rem;
+            font-weight: 500;
+            color: var(--text);
+            transition: all 0.3s ease;
+        }
+
+        /* ── ACTION BUTTONS ── */
+        .output-actions {
+            padding: 20px 28px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .btn-action-primary {
+            background: var(--text);
+            color: var(--bg);
+            border: none;
+            padding: 13px 20px;
+            border-radius: var(--radius-sm);
+            font-family: var(--font-body);
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            text-decoration: none;
+        }
+
+        .btn-action-primary:hover {
+            background: var(--gold-light);
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+        }
+
+        .btn-action-secondary {
+            background: transparent;
+            color: var(--text-mid);
+            border: 1px solid var(--border-bright);
+            padding: 12px 20px;
+            border-radius: var(--radius-sm);
+            font-family: var(--font-body);
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-action-secondary:hover {
+            border-color: var(--text-mid);
+            color: var(--text);
+        }
+
+        .privacy-note {
+            text-align: center;
+            font-family: var(--font-mono);
+            font-size: 8px;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            padding: 0 28px 18px;
+        }
+
+        /* ── MODAL ── */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.75);
+            backdrop-filter: blur(8px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+        }
+
+        .modal-overlay.open {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .modal-panel {
+            background: var(--bg2);
+            border: 1px solid var(--border-bright);
+            border-radius: 20px;
+            max-width: 420px;
+            width: 100%;
+            padding: 32px;
+            box-shadow: var(--shadow);
+            transform: translateY(12px) scale(0.98);
+            transition: transform 0.3s;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-overlay.open .modal-panel {
+            transform: translateY(0) scale(1);
+        }
+
+        .modal-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 20px;
+        }
+
+        .modal-badge {
+            font-family: var(--font-mono);
+            font-size: 9px;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: #1A1409;
+            background: linear-gradient(135deg, var(--gold), var(--gold-light));
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-weight: 600;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            font-size: 16px;
+            padding: 4px;
+            transition: color 0.2s;
+        }
+
+        .modal-close:hover { color: var(--text); }
+
+        .modal-title {
+            font-family: var(--font-display);
+            font-size: 1.9rem;
+            font-weight: 600;
+            color: var(--text);
+            margin-bottom: 8px;
+            line-height: 1.15;
+        }
+
+        .modal-desc {
+            font-size: 13px;
+            color: var(--text-muted);
+            line-height: 1.6;
+            margin-bottom: 24px;
+        }
+
+        .feature-list {
+            list-style: none;
+            margin-bottom: 28px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .feature-list li {
+            display: flex;
+            gap: 10px;
+            font-size: 13px;
+            color: var(--text-mid);
+            line-height: 1.4;
+            align-items: flex-start;
+        }
+
+        .feature-list li i {
+            color: var(--gold);
+            margin-top: 2px;
+            font-size: 10px;
+            flex-shrink: 0;
+        }
+
+        .payment-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 24px;
+        }
+
+        .btn-pay-primary {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 9px;
+            padding: 14px 20px;
+            border-radius: var(--radius-sm);
+            font-family: var(--font-body);
+            font-size: 14px;
+            font-weight: 600;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+            background: linear-gradient(135deg, var(--gold), var(--gold-light));
+            color: #1A1409;
+        }
+
+        .btn-pay-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 8px 24px rgba(201,169,110,0.3);
+        }
+
+        .btn-pay-secondary {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 9px;
+            padding: 13px 20px;
+            border-radius: var(--radius-sm);
+            font-family: var(--font-body);
+            font-size: 14px;
+            font-weight: 500;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 1px solid var(--border-bright);
+            background: var(--bg3);
+            color: var(--text);
+        }
+
+        .btn-pay-secondary:hover {
+            border-color: #009cde;
+            background: rgba(0, 156, 222, 0.06);
+            color: #1BAFF5;
+        }
+
+        .btn-pay-secondary .paypal-icon { color: #009cde; }
+
+        .activation-section {
+            border-top: 1px solid var(--border);
+            padding-top: 20px;
+        }
+
+        .activation-label {
+            font-family: var(--font-mono);
+            font-size: 9px;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        .activation-row {
+            display: flex;
+            gap: 8px;
+        }
+
+        .activation-row .field-input {
+            font-size: 12px;
+            padding: 10px 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        .btn-activate {
+            background: var(--bg3);
+            border: 1px solid var(--border-bright);
+            color: var(--text);
+            font-family: var(--font-mono);
+            font-size: 10px;
+            letter-spacing: 0.08em;
+            padding: 10px 16px;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+
+        .btn-activate:hover {
+            border-color: var(--gold);
+            color: var(--gold);
+        }
+
+        .activation-note {
+            font-family: var(--font-mono);
+            font-size: 9px;
+            letter-spacing: 0.08em;
+            color: var(--text-muted);
+            text-align: center;
+            margin-top: 10px;
+        }
+
+        /* ── PRINT ── */
+        @media print {
+            body * { visibility: hidden; }
+            #blueprint-card, #blueprint-card * { visibility: visible; }
+            #blueprint-card { position: absolute; top: 0; left: 0; width: 100%; }
+            .no-print { display: none !important; }
+        }
+
+        /* ── PAGE LOAD ANIMATION ── */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(16px);
+            animation: fadeInUp 0.5s ease forwards;
+        }
+
+        .fade-in-1 { animation-delay: 0.05s; }
+        .fade-in-2 { animation-delay: 0.12s; }
+        .fade-in-3 { animation-delay: 0.2s; }
+        .fade-in-4 { animation-delay: 0.28s; }
+
+        @keyframes fadeInUp {
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ── SCROLLBAR ── */
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: var(--bg); }
+        ::-webkit-scrollbar-thumb { background: var(--border-bright); border-radius: 2px; }
+
+        .expenses-scroll { max-height: 220px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; padding-right: 2px; }
+        .blueprints-scroll { max-height: 180px; overflow-y: auto; display: flex; flex-direction: column; gap: 6px; padding-right: 2px; }
+    </style>
+</head>
+<body>
+
+<div class="wrapper">
+    <!-- HEADER -->
+    <header class="no-print fade-in fade-in-1">
+        <div class="logo-group">
+            <div class="logo">Luxe<span>Rate</span></div>
+            <span class="version-badge">Pro v2.0</span>
+        </div>
+        <div class="header-actions">
+            <a href="#" onclick="window.print();return false;" class="btn-ghost no-print">
+                <i class="fas fa-download"></i> Export
+            </a>
+            <button id="open-pro-modal-btn" class="btn-gold no-print">
+                <i class="fas fa-crown"></i> Unlock Pro
+            </button>
+        </div>
+    </header>
+
+    <div class="tagline-bar fade-in fade-in-2">
+        <p class="tagline">Financial blueprint for independent creators</p>
+        <div class="privacy-pill">Zero data tracking</div>
+    </div>
+
+    <!-- MAIN GRID -->
+    <div class="main-grid">
+
+        <!-- LEFT: INPUTS -->
+        <div>
+            <div class="panel fade-in fade-in-2">
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
+                    <p class="panel-title">Parameters</p>
+                    <span id="pro-active-badge" class="hidden"><i class="fas fa-star" style="font-size:8px;margin-right:5px;"></i>Pro Active</span>
+                </div>
+                <p class="panel-sub">Precision inputs</p>
+
+                <div class="two-col">
+                    <div class="field-group">
+                        <label class="field-label" for="currency">
+                            <i class="fas fa-globe"></i> Currency
+                        </label>
+                        <select id="currency" class="field-input">
+                            <option value="USD">💵 USD — Dollar</option>
+                            <option value="EUR">💶 EUR — Euro</option>
+                            <option value="GBP">💷 GBP — Pound</option>
+                            <option value="KES">🇰🇪 KES — Shilling</option>
+                        </select>
+                    </div>
+                    <div class="field-group">
+                        <label class="field-label" for="net-salary">
+                            <i class="fas fa-coins"></i> Target Net / Year
+                        </label>
+                        <input type="number" id="net-salary" value="85000" step="1000" class="field-input">
+                    </div>
+                </div>
+
+                <!-- Basic overhead -->
+                <div id="basic-overhead-block" class="field-group">
+                    <label class="field-label" for="monthly-overhead">
+                        <i class="fas fa-receipt"></i> Monthly Overhead
+                    </label>
+                    <input type="number" id="monthly-overhead" value="550" step="50" class="field-input">
+                </div>
+
+                <!-- Pro expense block -->
+                <div id="pro-expense-block" class="hidden">
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+                        <label class="field-label" style="margin:0"><i class="fas fa-list-ul"></i> Granular Expenses</label>
+                        <button id="add-expense-btn" class="btn-add-expense" style="width:auto;padding:5px 12px;margin:0;">
+                            <i class="fas fa-plus"></i> Add
+                        </button>
+                    </div>
+                    <div id="expense-list-container" class="expenses-scroll"></div>
+                    <div class="overhead-total">
+                        <span class="overhead-total-label">Monthly Total</span>
+                        <span id="pro-total-overhead">KSh 0</span>
+                    </div>
+                </div>
+
+                <!-- Pro toggle -->
+                <div class="toggle-row">
+                    <span class="toggle-label"><i class="fas fa-sliders-h"></i> Pro granular mode</span>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="pro-mode-toggle">
+                        <span class="toggle-track"></span>
+                    </label>
+                </div>
+
+                <hr class="section-divider">
+
+                <div class="two-col">
+                    <div class="field-group">
+                        <label class="field-label" for="tax-rate">
+                            <i class="fas fa-percent"></i> Tax Rate
+                        </label>
+                        <input type="number" id="tax-rate" value="28" step="1" class="field-input">
+                    </div>
+                    <div class="field-group">
+                        <label class="field-label" for="vacation-weeks">
+                            <i class="fas fa-umbrella-beach"></i> Vacation Weeks
+                        </label>
+                        <input type="number" id="vacation-weeks" value="4" step="1" class="field-input">
+                    </div>
+                </div>
+
+                <div class="field-group">
+                    <label class="field-label" for="billable-hours">
+                        <i class="fas fa-clock"></i> Billable Hours / Week
+                    </label>
+                    <input type="number" id="billable-hours" value="22" step="1" class="field-input">
+                </div>
+
+                <!-- Pro blueprints -->
+                <div id="pro-management-panel" class="hidden">
+                    <hr class="section-divider">
+                    <p class="panel-title" style="font-size:1.1rem;margin-bottom:4px;">Saved Blueprints</p>
+                    <p class="panel-sub">Scenario library</p>
+                    <div class="blueprint-input-row">
+                        <input type="text" id="blueprint-name-input" placeholder="e.g. Safe & Scalable" class="field-input">
+                        <button id="save-blueprint-btn" class="btn-save">Save</button>
+                    </div>
+                    <div id="blueprint-list-ui" class="blueprints-scroll"></div>
+                </div>
+
+                <!-- Privacy note -->
+                <div style="margin-top:20px;padding:12px 14px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);display:flex;align-items:center;gap:10px;">
+                    <i class="fas fa-shield-alt" style="color:var(--gold);font-size:11px;flex-shrink:0;"></i>
+                    <span style="font-family:var(--font-mono);font-size:10px;letter-spacing:0.05em;color:var(--text-muted);">All data lives on your device — no cloud, no tracking.</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- RIGHT: OUTPUT -->
+        <div class="sticky-col fade-in fade-in-3">
+            <div id="blueprint-card" class="output-card">
+
+                <div class="output-header">
+                    <div class="output-header-left">
+                        <h2>Your Financial<br>Blueprint</h2>
+                        <p id="current-date-display"></p>
+                    </div>
+                    <span class="confidential-badge">Confidential</span>
+                </div>
+
+                <div class="hero-rate">
+                    <p class="hero-rate-label">Sustainable Hourly Rate</p>
+                    <p id="display-hourly-rate">$0</p>
+                    <p class="hero-rate-sub"><i class="fas fa-chart-line" style="margin-right:5px;"></i>break-even + margin</p>
+                </div>
+
+                <div class="metrics-grid">
+                    <div class="metric-cell">
+                        <p class="metric-label">Min Project (10h)</p>
+                        <p id="display-baseline" class="metric-value">$0</p>
+                    </div>
+                    <div class="metric-cell">
+                        <p class="metric-label">Gross Revenue</p>
+                        <p id="display-gross" class="metric-value">$0</p>
+                    </div>
+                    <div class="metric-cell">
+                        <p class="metric-label">Est. Annual Tax</p>
+                        <p id="display-taxes" class="metric-value">$0</p>
+                    </div>
+                    <div class="metric-cell">
+                        <p class="metric-label">Annual Overhead</p>
+                        <p id="display-overhead" class="metric-value">$0</p>
+                    </div>
+                </div>
+
+                <div class="output-actions no-print">
+                    <button onclick="window.print()" class="btn-action-primary">
+                        <i class="fas fa-download"></i> Export PDF / Print
+                    </button>
+                    <button id="share-results-btn" class="btn-action-secondary">
+                        <i class="fas fa-share-alt"></i> Copy Share Link
+                    </button>
+                </div>
+
+                <p class="privacy-note no-print"><i class="fas fa-lock" style="margin-right:5px;"></i>Privacy-first · No analytics</p>
+            </div>
+        </div>
+
+    </div>
+
+    <div style="height:48px;"></div>
+</div>
+
+<!-- PRO MODAL -->
+<div id="pro-modal" class="modal-overlay" role="dialog" aria-modal="true">
+    <div class="modal-panel">
+        <div class="modal-top">
+            <span class="modal-badge"><i class="fas fa-crown" style="margin-right:5px;"></i>Premium</span>
+            <button id="close-modal-btn" class="modal-close" aria-label="Close"><i class="fas fa-times"></i></button>
+        </div>
+        <h3 class="modal-title">Elevate to<br>LuxeRate Pro</h3>
+        <p class="modal-desc">Break down every cost, save unlimited scenarios, and compare financial strategies — all offline.</p>
+        <ul class="feature-list">
+            <li><i class="fas fa-check"></i> Itemized expense tracking (software, rent, insurance)</li>
+            <li><i class="fas fa-check"></i> Unlimited blueprint saving & versioning</li>
+            <li><i class="fas fa-check"></i> Persistent local storage + advanced analytics</li>
+            <li><i class="fas fa-check"></i> Compare basic vs pro with one click</li>
+        </ul>
+        <div class="payment-buttons">
+            <a href="https://www.pesapal.com/checkout?ConsumerKey=0PuSW9QodI5CauWj4SWyTVKyCMxytPw4" target="_blank" rel="noopener" class="btn-pay-primary">
+                <i class="fas fa-mobile-alt"></i> M-Pesa / Card — $29
+            </a>
+            <a href="https://www.paypal.com/ncp/payment/5B3PL63Y8DZ86" target="_blank" rel="noopener" class="btn-pay-secondary">
+                <i class="fab fa-paypal paypal-icon"></i> PayPal — $29
+            </a>
+        </div>
+        <div class="activation-section">
+            <span class="activation-label">Activation Code</span>
+            <div class="activation-row">
+                <input type="text" id="activation-code-input" placeholder="XXXX-XXXX-XXXX" class="field-input" autocomplete="off" spellcheck="false">
+                <button id="activate-pro-btn" class="btn-activate">Activate</button>
+            </div>
+            <p class="activation-note">One-time purchase · Lifetime access</p>
+        </div>
+    </div>
+</div>
+
+<script>
+    // ── Currency map ──
+    const currencyMap = {
+        USD: { locale: 'en-US', currency: 'USD', symbol: '$' },
+        EUR: { locale: 'de-DE', currency: 'EUR', symbol: '€' },
+        GBP: { locale: 'en-GB', currency: 'GBP', symbol: '£' },
+        KES: { locale: 'en-KE', currency: 'KES', symbol: 'KSh' }
+    };
+
+    let proUnlocked = false;
+    let proModeActive = false;
+    let expenses = [];
+    let blueprints = [];
+
+    // ── Persistence helpers ──
+    function saveExpenses() { try { localStorage.setItem('luxerate_expenses', JSON.stringify(expenses)); } catch(e){} }
+    function saveBlueprints() { try { localStorage.setItem('luxerate_blueprints', JSON.stringify(blueprints)); } catch(e){} }
+    function saveProModeState() { try { localStorage.setItem('luxerate_pro_mode_active', proModeActive); } catch(e){} }
+
+    function escapeHtml(str) {
+        if (!str) return '';
+        return str.replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+    }
+
+    // ── UI state ──
+    function updateUIForProStatus() {
+        const badge = document.getElementById('pro-active-badge');
+        const managementPanel = document.getElementById('pro-management-panel');
+        const proExpenseBlock = document.getElementById('pro-expense-block');
+        const basicBlock = document.getElementById('basic-overhead-block');
+        const active = proUnlocked && proModeActive;
+
+        badge.classList.toggle('hidden', !active);
+        managementPanel.classList.toggle('hidden', !active);
+        proExpenseBlock.classList.toggle('hidden', !active);
+        basicBlock.classList.toggle('hidden', active);
+    }
+
+    function enableProFeaturesUI() {
+        proModeActive = true;
+        updateUIForProStatus();
+        saveProModeState();
+        calculate();
+    }
+
+    function disableProFeaturesUI() {
+        proModeActive = false;
+        updateUIForProStatus();
+        calculate();
+    }
+
+    // ── Expense management ──
+    function renderExpenseRows() {
+        const container = document.getElementById('expense-list-container');
+        if (!container) return;
+        container.innerHTML = '';
+        expenses.forEach(exp => {
+            const div = document.createElement('div');
+            div.className = 'expense-row';
+            div.innerHTML = `
+                <input type="text" value="${escapeHtml(exp.name)}" placeholder="Expense name" data-id="${exp.id}" data-field="name" class="expense-name-input">
+                <input type="number" value="${exp.amount}" data-id="${exp.id}" data-field="amount" class="expense-amount-input">
+                <button class="remove-expense btn-remove-expense" data-id="${exp.id}" aria-label="Remove"><i class="fas fa-times"></i></button>
+            `;
+            container.appendChild(div);
+        });
+        attachExpenseEvents();
+    }
+
+    function attachExpenseEvents() {
+        document.querySelectorAll('.expense-name-input, .expense-amount-input').forEach(inp => {
+            inp.addEventListener('change', handleExpChange);
+            inp.addEventListener('input', handleExpChange);
+        });
+        document.querySelectorAll('.remove-expense').forEach(btn => {
+            btn.addEventListener('click', handleExpRemove);
+        });
+    }
+
+    function handleExpChange(e) {
+        const id = parseInt(e.target.dataset.id);
+        const field = e.target.dataset.field;
+        const value = field === 'amount' ? parseFloat(e.target.value) || 0 : e.target.value;
+        const expense = expenses.find(exp => exp.id === id);
+        if (expense) expense[field] = value;
+        saveExpenses();
+        calculate();
+    }
+
+    function handleExpRemove(e) {
+        const btn = e.target.closest('.remove-expense');
+        const id = parseInt(btn?.dataset?.id);
+        if (id) {
+            expenses = expenses.filter(exp => exp.id !== id);
+            saveExpenses();
+            renderExpenseRows();
+            calculate();
+        }
+    }
+
+    function addExpense() {
+        expenses.push({ id: Date.now(), name: 'New Expense', amount: 0 });
+        saveExpenses();
+        renderExpenseRows();
+        calculate();
+    }
+
+    // ── Blueprint management ──
+    function saveCurrentBlueprint() {
+        const nameInput = document.getElementById('blueprint-name-input');
+        const name = nameInput.value.trim() || `Plan ${blueprints.length + 1}`;
+        blueprints.unshift({
+            id: Date.now(),
+            name,
+            inputs: {
+                netSalary: document.getElementById('net-salary').value,
+                monthlyOverhead: document.getElementById('monthly-overhead').value,
+                taxRate: document.getElementById('tax-rate').value,
+                vacationWeeks: document.getElementById('vacation-weeks').value,
+                billableHours: document.getElementById('billable-hours').value,
+                currency: document.getElementById('currency').value,
+                expenses: JSON.parse(JSON.stringify(expenses)),
+                proMode: proModeActive
+            }
+        });
+        saveBlueprints();
+        renderBlueprintsList();
+        nameInput.value = '';
+    }
+
+    function loadBlueprint(bp) {
+        document.getElementById('net-salary').value = bp.inputs.netSalary;
+        document.getElementById('monthly-overhead').value = bp.inputs.monthlyOverhead;
+        document.getElementById('tax-rate').value = bp.inputs.taxRate;
+        document.getElementById('vacation-weeks').value = bp.inputs.vacationWeeks;
+        document.getElementById('billable-hours').value = bp.inputs.billableHours;
+        document.getElementById('currency').value = bp.inputs.currency;
+        if (bp.inputs.expenses && proUnlocked) {
+            expenses = JSON.parse(JSON.stringify(bp.inputs.expenses));
+            saveExpenses();
+            renderExpenseRows();
+        }
+        if (bp.inputs.proMode && proUnlocked) {
+            proModeActive = true;
+            document.getElementById('pro-mode-toggle').checked = true;
+            enableProFeaturesUI();
+        } else {
+            proModeActive = false;
+            document.getElementById('pro-mode-toggle').checked = false;
+            disableProFeaturesUI();
+        }
+        calculate();
+    }
+
+    function deleteBlueprint(id) {
+        blueprints = blueprints.filter(b => b.id !== id);
+        saveBlueprints();
+        renderBlueprintsList();
+    }
+
+    function renderBlueprintsList() {
+        const container = document.getElementById('blueprint-list-ui');
+        if (!container) return;
+        if (blueprints.length === 0) {
+            container.innerHTML = '<p style="font-family:var(--font-mono);font-size:10px;color:var(--text-muted);font-style:italic;">No saved blueprints yet</p>';
+            return;
+        }
+        container.innerHTML = blueprints.map(bp => `
+            <div class="blueprint-item">
+                <button class="bp-load-btn load-bp-btn" data-id="${bp.id}">
+                    <span class="bp-name">${escapeHtml(bp.name)}</span>
+                    <span class="bp-meta">${bp.inputs.currency} · ${bp.inputs.proMode ? 'Pro Mode' : 'Basic'}</span>
+                </button>
+                <button class="bp-delete-btn delete-bp-btn" data-id="${bp.id}" aria-label="Delete blueprint"><i class="fas fa-trash-alt"></i></button>
+            </div>
+        `).join('');
+        document.querySelectorAll('.load-bp-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const bp = blueprints.find(b => b.id === parseInt(btn.dataset.id));
+                if (bp) loadBlueprint(bp);
+            });
+        });
+        document.querySelectorAll('.delete-bp-btn').forEach(btn => {
+            btn.addEventListener('click', e => {
+                e.stopPropagation();
+                deleteBlueprint(parseInt(btn.dataset.id));
+            });
+        });
+    }
+
+    // ── Calculation engine ──
+    function calculate() {
+        const currencyCode = document.getElementById('currency').value;
+        const cfg = currencyMap[currencyCode] || currencyMap['USD'];
+        const formatter = new Intl.NumberFormat(cfg.locale, {
+            style: 'currency', currency: cfg.currency, maximumFractionDigits: 0
+        });
+
+        const netSalary = parseFloat(document.getElementById('net-salary').value) || 0;
+        let monthlyOverhead = 0;
+
+        if (proUnlocked && proModeActive) {
+            monthlyOverhead = expenses.reduce((sum, e) => sum + (parseFloat(e.amount) || 0), 0);
+            document.getElementById('pro-total-overhead').textContent = formatter.format(monthlyOverhead);
+        } else {
+            monthlyOverhead = parseFloat(document.getElementById('monthly-overhead').value) || 0;
+        }
+
+        const taxRate = Math.min(parseFloat(document.getElementById('tax-rate').value) || 0, 99.99);
+        const vacationWeeks = parseFloat(document.getElementById('vacation-weeks').value) || 0;
+        const billableHours = parseFloat(document.getElementById('billable-hours').value) || 0;
+
+        const annualOverhead = monthlyOverhead * 12;
+        const taxMultiplier = 1 / (1 - taxRate / 100);
+        const grossRevenue = (netSalary + annualOverhead) * taxMultiplier;
+        const totalWorkingWeeks = Math.max(0, 52 - vacationWeeks);
+        const totalBillable = totalWorkingWeeks * billableHours;
+        const hourlyRate = totalBillable > 0 ? grossRevenue / totalBillable : 0;
+        const baselineProject = hourlyRate * 10;
+        const annualTaxes = grossRevenue - netSalary - annualOverhead;
+
+        document.getElementById('display-hourly-rate').textContent = formatter.format(hourlyRate);
+        document.getElementById('display-baseline').textContent = formatter.format(baselineProject);
+        document.getElementById('display-gross').textContent = formatter.format(grossRevenue);
+        document.getElementById('display-taxes').textContent = formatter.format(annualTaxes);
+        document.getElementById('display-overhead').textContent = formatter.format(annualOverhead);
+
+        try {
+            localStorage.setItem('luxerate_last_inputs', JSON.stringify({ netSalary, monthlyOverhead, taxRate, vacationWeeks, billableHours, currencyCode }));
+        } catch(e) {}
+    }
+
+    // ── Pro activation ──
+    function activateProCode() {
+        const code = document.getElementById('activation-code-input').value.trim().toUpperCase();
+        if (code === 'LUXERATE_PRO_2026') {
+            proUnlocked = true;
+            try { localStorage.setItem('luxerate_pro_unlocked', 'true'); } catch(e) {}
+            closeModal();
+            enableProFeaturesUI();
+            document.getElementById('pro-mode-toggle').checked = true;
+            proModeActive = true;
+            saveProModeState();
+            calculate();
+            // Show a styled notification instead of alert
+            showNotification('🎉 LuxeRate Pro unlocked! Enjoy granular expenses & blueprint saving.');
+        } else {
+            showNotification('Invalid activation code. Please check and try again.', true);
+        }
+    }
+
+    // ── Notification toast ──
+    function showNotification(msg, isError = false) {
+        const existing = document.getElementById('lx-toast');
+        if (existing) existing.remove();
+        const toast = document.createElement('div');
+        toast.id = 'lx-toast';
+        toast.style.cssText = `
+            position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(20px);
+            background:${isError ? '#2A1818' : '#1A1F14'};
+            border:1px solid ${isError ? 'rgba(224,90,90,0.4)' : 'rgba(90,191,138,0.4)'};
+            color:${isError ? '#E05A5A' : '#5ABF8A'};
+            font-family:var(--font-mono);font-size:12px;letter-spacing:0.05em;
+            padding:12px 22px;border-radius:10px;z-index:9999;
+            box-shadow:0 8px 32px rgba(0,0,0,0.4);
+            transition:all 0.3s ease;opacity:0;
+        `;
+        toast.textContent = msg;
+        document.body.appendChild(toast);
+        requestAnimationFrame(() => {
+            toast.style.opacity = '1';
+            toast.style.transform = 'translateX(-50%) translateY(0)';
+        });
+        setTimeout(() => {
+            toast.style.opacity = '0';
+            toast.style.transform = 'translateX(-50%) translateY(10px)';
+            setTimeout(() => toast.remove(), 300);
+        }, 3200);
+    }
+
+    // ── Share ──
+    function shareResults() {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(window.location.href)
+                .then(() => showNotification('Link copied to clipboard ✓'))
+                .catch(() => prompt('Copy this link:', window.location.href));
+        } else {
+            prompt('Copy this link:', window.location.href);
+        }
+    }
+
+    // ── Modal helpers ──
+    function openModal() {
+        document.getElementById('pro-modal').classList.add('open');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeModal() {
+        document.getElementById('pro-modal').classList.remove('open');
+        document.body.style.overflow = '';
+    }
+
+    // ── Load persisted ──
+    function loadPersisted() {
+        try {
+            const unlocked = localStorage.getItem('luxerate_pro_unlocked');
+            if (unlocked === 'true') proUnlocked = true;
+
+            const storedExpenses = localStorage.getItem('luxerate_expenses');
+            expenses = storedExpenses
+                ? JSON.parse(storedExpenses)
+                : [{ id: Date.now(), name: 'Software & Tools', amount: 85 }, { id: Date.now() + 1, name: 'Insurance', amount: 120 }];
+
+            const storedBlueprints = localStorage.getItem('luxerate_blueprints');
+            if (storedBlueprints) blueprints = JSON.parse(storedBlueprints);
+
+            const proModeState = localStorage.getItem('luxerate_pro_mode_active');
+            proModeActive = (proModeState === 'true' && proUnlocked);
+        } catch(e) {}
+
+        updateUIForProStatus();
+        renderExpenseRows();
+        renderBlueprintsList();
+        document.getElementById('pro-mode-toggle').checked = proModeActive && proUnlocked;
+        if (proModeActive) enableProFeaturesUI(); else disableProFeaturesUI();
+    }
+
+    // ── Event listeners ──
+    document.getElementById('current-date-display').textContent =
+        new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+
+    ['net-salary','monthly-overhead','tax-rate','vacation-weeks','billable-hours'].forEach(id => {
+        document.getElementById(id)?.addEventListener('input', calculate);
+    });
+
+    document.getElementById('currency')?.addEventListener('change', calculate);
+    document.getElementById('add-expense-btn')?.addEventListener('click', addExpense);
+    document.getElementById('save-blueprint-btn')?.addEventListener('click', saveCurrentBlueprint);
+    document.getElementById('share-results-btn')?.addEventListener('click', shareResults);
+
+    document.getElementById('pro-mode-toggle')?.addEventListener('change', e => {
+        if (!proUnlocked) {
+            e.target.checked = false;
+            openModal();
+            return;
+        }
+        if (e.target.checked) enableProFeaturesUI(); else disableProFeaturesUI();
+    });
+
+    document.getElementById('open-pro-modal-btn')?.addEventListener('click', openModal);
+    document.getElementById('close-modal-btn')?.addEventListener('click', closeModal);
+    document.getElementById('activate-pro-btn')?.addEventListener('click', activateProCode);
+
+    document.getElementById('activation-code-input')?.addEventListener('keydown', e => {
+        if (e.key === 'Enter') activateProCode();
+    });
+
+    // Close modal on backdrop click
+    document.getElementById('pro-modal')?.addEventListener('click', e => {
+        if (e.target === document.getElementById('pro-modal')) closeModal();
+    });
+
+    // Close modal on Escape
+    document.addEventListener('keydown', e => {
+        if (e.key === 'Escape' && document.getElementById('pro-modal').classList.contains('open')) closeModal();
+    });
+
+    loadPersisted();
+</script>
+</body>
+</html>
