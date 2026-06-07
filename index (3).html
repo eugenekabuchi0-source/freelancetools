@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LuxeRate | Financial Blueprint</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+    
+    <!-- Social Meta Tags -->
+    <meta property="og:title" content="LuxeRate | Financial Blueprint for Freelancers">
+    <meta property="og:description" content="A premium, privacy-first financial calculator to set sustainable freelance rates.">
+    <meta property="og:type" content="website">
+    <meta property="og:image" content="https://luxerate.com/og-image.jpg">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="LuxeRate | Financial Blueprint for Freelancers">
+    <meta name="twitter:description" content="Calculate your sustainable freelance rate with LuxeRate.">
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #F9F7F2;
+            color: #2D3436;
+        }
+        h1, h2, h3 {
+            font-family: 'Playfair Display', serif;
+        }
+        .luxury-shadow {
+            box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.05);
+        }
+        .input-group:focus-within label {
+            color: #8E8E8E;
+        }
+        input::-webkit-outer-spin-button,
+        input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        .pro-only { display: none; }
+        body.pro-mode .pro-only { display: block; }
+        body.pro-mode .basic-only { display: none; }
+
+        @media print {
+            body * {
+                visibility: hidden;
+            }
+            #blueprint-card, #blueprint-card * {
+                visibility: visible;
+            }
+            #blueprint-card {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                box-shadow: none;
+                border: 1px solid #E5E7EB;
+            }
+            .no-print {
+                display: none !important;
+            }
+        }
+
+        /* Modal Overlay */
+        #paywall-modal {
+            background-color: rgba(249, 247, 242, 0.9);
+            backdrop-filter: blur(8px);
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col items-center py-12 px-4 transition-colors duration-500">
+    <header class="mb-12 text-center relative w-full max-w-6xl">
+        <div class="absolute right-0 top-0 no-print">
+            <a href="guides-hub.html" class="text-[10px] font-bold text-stone-400 uppercase tracking-widest hover:text-stone-600 transition-colors border border-stone-200 px-3 py-1 rounded-full">Knowledge Hub</a>
+        </div>
+        <h1 class="text-4xl font-bold tracking-tight text-slate-800">LuxeRate</h1>
+        <p class="text-slate-500 mt-2 uppercase tracking-widest text-xs">Financial Blueprint for Freelancers</p>
+    </header>
+
+    <main class="max-w-6xl w-full grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
+        <!-- Inputs Section -->
+        <section class="bg-white p-8 rounded-2xl luxury-shadow border border-stone-100 overflow-hidden">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-semibold">Parameters</h2>
+                <div class="flex items-center gap-2">
+                    <span id="pro-badge" class="hidden text-[8px] bg-slate-900 text-white px-2 py-0.5 rounded-full uppercase tracking-widest font-bold">Pro Active</span>
+                    <button id="pro-toggle-btn" onclick="togglePro()" class="text-[10px] font-bold text-stone-400 uppercase tracking-widest hover:text-stone-600 transition-colors border border-stone-200 px-3 py-1 rounded-full">
+                        Unlock LuxeRate Pro
+                    </button>
+                </div>
+            </div>
+            
+            <div class="space-y-6">
+                <div class="input-group">
+                    <label for="currency" class="block text-sm font-medium text-slate-500 mb-2 uppercase tracking-wide">Select Currency</label>
+                    <select id="currency" class="w-full bg-stone-50 border-b border-stone-200 py-3 px-1 text-lg focus:outline-none focus:border-stone-400 transition-colors cursor-pointer">
+                        <option value="USD">$ USD</option>
+                        <option value="EUR">€ EUR</option>
+                        <option value="GBP">£ GBP</option>
+                        <option value="KSH">KSh KSH</option>
+                    </select>
+                </div>
+
+                <div class="input-group">
+                    <label for="net-salary" class="block text-sm font-medium text-slate-500 mb-2 uppercase tracking-wide">Desired Annual Net Salary</label>
+                    <input type="number" id="net-salary" value="80000" step="1000" class="w-full bg-stone-50 border-b border-stone-200 py-3 px-1 text-xl focus:outline-none focus:border-stone-400 transition-colors">
+                </div>
+
+                <div id="overhead-section">
+                    <div class="input-group basic-only">
+                        <label for="monthly-overhead" class="block text-sm font-medium text-slate-500 mb-2 uppercase tracking-wide">Monthly Business Overhead</label>
+                        <input type="number" id="monthly-overhead" value="500" step="50" class="w-full bg-stone-50 border-b border-stone-200 py-3 px-1 text-xl focus:outline-none focus:border-stone-400 transition-colors">
+                    </div>
+                    
+                    <div class="pro-only space-y-4">
+                        <label class="block text-sm font-medium text-slate-500 mb-2 uppercase tracking-wide">Monthly Expenses (Pro)</label>
+                        <div id="expense-list" class="space-y-3">
+                            <!-- Expense rows injected here -->
+                        </div>
+                        <button onclick="addExpenseRow()" class="text-[10px] text-stone-400 hover:text-stone-600 transition-colors uppercase tracking-widest font-bold flex items-center gap-1">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                            Add Expense
+                        </button>
+                        <div class="pt-2 border-t border-stone-50 flex justify-between items-center">
+                            <span class="text-xs text-slate-400 uppercase tracking-widest">Total Overhead</span>
+                            <span class="font-medium text-slate-600" id="pro-overhead-sum">$0</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-6">
+                    <div class="input-group">
+                        <label for="tax-rate" class="block text-sm font-medium text-slate-500 mb-2 uppercase tracking-wide">Tax Rate (%)</label>
+                        <input type="number" id="tax-rate" value="30" step="1" class="w-full bg-stone-50 border-b border-stone-200 py-3 px-1 text-xl focus:outline-none focus:border-stone-400 transition-colors">
+                    </div>
+                    <div class="input-group">
+                        <label for="vacation-weeks" class="block text-sm font-medium text-slate-500 mb-2 uppercase tracking-wide">Vacation Weeks</label>
+                        <input type="number" id="vacation-weeks" value="4" step="1" class="w-full bg-stone-50 border-b border-stone-200 py-3 px-1 text-xl focus:outline-none focus:border-stone-400 transition-colors">
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label for="billable-hours" class="block text-sm font-medium text-slate-500 mb-2 uppercase tracking-wide">Billable Hours per Week</label>
+                    <input type="number" id="billable-hours" value="20" step="1" class="w-full bg-stone-50 border-b border-stone-200 py-3 px-1 text-xl focus:outline-none focus:border-stone-400 transition-colors">
+                </div>
+            </div>
+
+            <!-- Pro Management Section -->
+            <div class="pro-only mt-10 pt-10 border-t border-stone-100">
+                <h3 class="text-lg font-semibold mb-4">Saved Blueprints</h3>
+                <div class="flex gap-3 mb-6">
+                    <input type="text" id="blueprint-name" placeholder="Name (e.g. Aggressive Plan)" class="flex-1 bg-stone-50 border-b border-stone-200 py-2 px-1 text-sm focus:outline-none focus:border-stone-400 transition-colors">
+                    <button onclick="saveBlueprint()" class="bg-slate-900 text-white px-4 py-2 rounded-lg text-[10px] font-bold uppercase tracking-widest hover:bg-slate-800 transition-all active:scale-95">Save</button>
+                </div>
+                <div id="blueprint-list" class="grid grid-cols-1 gap-3">
+                    <!-- Blueprints list injected here -->
+                </div>
+            </div>
+        </section>
+
+        <!-- Output Section -->
+        <section class="sticky top-12">
+            <div id="blueprint-card" class="bg-white p-10 rounded-2xl luxury-shadow border border-stone-100 flex flex-col">
+                <div class="flex justify-between items-start border-b border-stone-100 pb-8 mb-8">
+                    <div>
+                        <h2 class="text-3xl font-bold text-slate-800">Financial Blueprint</h2>
+                        <p id="current-date" class="text-slate-400 text-sm mt-1 uppercase tracking-widest"></p>
+                    </div>
+                    <div class="text-right flex flex-col items-end">
+                        <span class="text-xs font-bold text-stone-300 uppercase tracking-[0.2em]">Private & Confidential</span>
+                        <span class="pro-only mt-1 bg-stone-100 text-stone-500 text-[8px] font-bold px-2 py-0.5 rounded-full uppercase tracking-widest">Pro Version</span>
+                    </div>
+                </div>
+
+                <div class="mb-10 text-center py-6 bg-stone-50 rounded-xl relative overflow-hidden">
+                    <p class="text-sm text-slate-500 uppercase tracking-widest mb-2">Required Hourly Rate</p>
+                    <p class="text-6xl font-bold text-slate-900" id="display-hourly-rate">$0</p>
+                </div>
+
+                <div class="space-y-4 mb-10">
+                    <div class="flex justify-between items-center text-sm">
+                        <span class="text-slate-500 font-light">Minimum Project Baseline (10 hrs)</span>
+                        <span class="font-medium text-slate-800" id="display-baseline">$0</span>
+                    </div>
+                    <div class="flex justify-between items-center text-sm pt-4 border-t border-stone-50">
+                        <span class="text-slate-500 font-light">Gross Annual Revenue Needed</span>
+                        <span class="font-medium text-slate-800" id="display-gross">$0</span>
+                    </div>
+                    <div class="flex justify-between items-center text-sm">
+                        <span class="text-slate-500 font-light">Estimated Annual Taxes</span>
+                        <span class="font-medium text-slate-800" id="display-taxes">$0</span>
+                    </div>
+                    <div class="flex justify-between items-center text-sm">
+                        <span class="text-slate-500 font-light">Annual Business Overhead</span>
+                        <span class="font-medium text-slate-800" id="display-overhead">$0</span>
+                    </div>
+                </div>
+
+                <div class="flex gap-4 no-print">
+                    <button onclick="window.print()" class="flex-[2] bg-slate-900 text-white py-4 rounded-xl font-medium tracking-wide hover:bg-slate-800 transition-all active:scale-[0.98]">
+                        Export Blueprint
+                    </button>
+                    <button onclick="shareLink(event)" class="flex-1 border border-slate-900 text-slate-900 py-4 rounded-xl font-medium tracking-wide hover:bg-slate-50 transition-all active:scale-[0.98]">
+                        Share
+                    </button>
+                </div>
+                
+                <p class="no-print text-center text-stone-400 text-[10px] mt-6 uppercase tracking-widest">
+                    Privacy First: No data ever leaves your device.
+                </p>
+            </div>
+        </section>
+    </main>
+
+    <!-- Paywall Modal -->
+    <div id="paywall-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white max-w-md w-full p-10 rounded-3xl luxury-shadow border border-stone-100 relative">
+            <button onclick="closePaywall()" class="absolute top-6 right-6 text-stone-300 hover:text-stone-500 transition-colors">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+            </button>
+            
+            <div class="text-center mb-8">
+                <p class="text-slate-500 uppercase tracking-[0.2em] text-[10px] mb-2 font-bold">Premium Access</p>
+                <h2 class="text-3xl font-bold text-slate-900">Unlock LuxeRate Pro</h2>
+            </div>
+
+            <ul class="space-y-4 mb-10">
+                <li class="flex items-start gap-3">
+                    <div class="mt-1 bg-slate-900 rounded-full p-0.5">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                    </div>
+                    <div class="text-sm">
+                        <span class="font-bold text-slate-800">Granular Expense Tracking</span>
+                        <p class="text-slate-500 font-light">Categorize and sum every business cost.</p>
+                    </div>
+                </li>
+                <li class="flex items-start gap-3">
+                    <div class="mt-1 bg-slate-900 rounded-full p-0.5">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                    </div>
+                    <div class="text-sm">
+                        <span class="font-bold text-slate-800">Multi-Blueprint Management</span>
+                        <p class="text-slate-500 font-light">Save and compare multiple financial plans.</p>
+                    </div>
+                </li>
+                <li class="flex items-start gap-3">
+                    <div class="mt-1 bg-slate-900 rounded-full p-0.5">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                    </div>
+                    <div class="text-sm">
+                        <span class="font-bold text-slate-800">Persistent Local Data</span>
+                        <p class="text-slate-500 font-light">All data stays private in your browser.</p>
+                    </div>
+                </li>
+            </ul>
+
+            <div class="space-y-3 mb-10">
+                <a href="https://www.pesapal.com/checkout?ConsumerKey=0PuSW9QodI5CauWj4SWyTVKyCMxytPw4" target="_blank" rel="noopener noreferrer" class="block w-full bg-slate-900 text-white py-4 rounded-xl font-medium tracking-wide hover:bg-slate-800 transition-all active:scale-95 text-center shadow-lg shadow-slate-200">
+                    Option 1: Pay via M-Pesa / Card ($29)
+                </a>
+                <a href="https://www.paypal.com/ncp/payment/4ARED7UXG2XRJ" target="_blank" rel="noopener noreferrer" class="block w-full bg-slate-900 text-white py-4 rounded-xl font-medium tracking-wide hover:bg-slate-800 transition-all active:scale-95 text-center shadow-lg shadow-slate-200">
+                    Option 2: Pay via PayPal ($29)
+                </a>
+            </div>
+
+            <div class="pt-8 border-t border-stone-100">
+                <label for="activation-code" class="block text-[10px] text-stone-400 uppercase tracking-widest font-bold mb-3">Already purchased? Enter your Activation Code to unlock Pro</label>
+                <div class="flex gap-2">
+                    <input type="text" id="activation-code" placeholder="Enter code" class="flex-1 bg-stone-50 border border-stone-100 rounded-lg py-2 px-3 text-sm focus:outline-none focus:border-stone-400 transition-colors uppercase">
+                    <button onclick="activateCode()" class="bg-slate-900 text-white px-4 py-2 rounded-lg text-[10px] font-bold uppercase tracking-widest hover:bg-slate-800 transition-all active:scale-95">Activate</button>
+                </div>
+            </div>
+            <p class="text-center text-[10px] text-stone-400 uppercase tracking-widest mt-6">Instant access. No recurring fees.</p>
+        </div>
+    </div>
+
+    <script>
+        const inputs = [
+            'net-salary',
+            'monthly-overhead',
+            'tax-rate',
+            'vacation-weeks',
+            'billable-hours',
+            'currency'
+        ];
+
+        const currencies = {
+            USD: { locale: 'en-US', currency: 'USD' },
+            EUR: { locale: 'de-DE', currency: 'EUR' },
+            GBP: { locale: 'en-GB', currency: 'GBP' },
+            KSH: { locale: 'en-KE', currency: 'KES' }
+        };
+
+        let state = {
+            isPurchased: false,
+            isPro: false,
+            expenses: [
+                { id: Date.now(), name: 'Software', amount: 50 },
+                { id: Date.now() + 1, name: 'Insurance', amount: 100 }
+            ],
+            blueprints: []
+        };
+
+        // Load state from localStorage
+        function loadState() {
+            const savedState = localStorage.getItem('luxerate_pro_state');
+            if (savedState) {
+                const parsed = JSON.parse(savedState);
+                state = { ...state, ...parsed };
+            }
+            
+            // Check if Pro is unlocked via activation code (overrides saved state)
+            if (localStorage.getItem('luxeRateProUnlocked') === 'true') {
+                state.isPurchased = true;
+                state.isPro = true;
+            }
+
+            if (state.isPro && state.isPurchased) document.body.classList.add('pro-mode');
+            
+            // Sync inputs
+            if (state.lastInputs) {
+                document.getElementById('net-salary').value = state.lastInputs.netSalary || 80000;
+                document.getElementById('monthly-overhead').value = state.lastInputs.monthlyOverhead || 500;
+                document.getElementById('tax-rate').value = state.lastInputs.taxRate || 30;
+                document.getElementById('vacation-weeks').value = state.lastInputs.vacationWeeks || 4;
+                document.getElementById('billable-hours').value = state.lastInputs.billableHours || 20;
+                document.getElementById('currency').value = state.lastInputs.currency || 'USD';
+            }
+            
+            renderExpenses();
+            renderBlueprints();
+            updateProToggleUI();
+        }
+
+        function saveState() {
+            state.lastInputs = {
+                netSalary: document.getElementById('net-salary').value,
+                monthlyOverhead: document.getElementById('monthly-overhead').value,
+                taxRate: document.getElementById('tax-rate').value,
+                vacationWeeks: document.getElementById('vacation-weeks').value,
+                billableHours: document.getElementById('billable-hours').value,
+                currency: document.getElementById('currency').value
+            };
+            localStorage.setItem('luxerate_pro_state', JSON.stringify(state));
+        }
+
+        function togglePro() {
+            if (!state.isPurchased) {
+                openPaywall();
+                return;
+            }
+
+            state.isPro = !state.isPro;
+            
+            // Smoother transition: if Pro and no expenses, migrate basic overhead
+            if (state.isPro && state.expenses.length === 0) {
+                const basicOverhead = parseFloat(document.getElementById('monthly-overhead').value) || 0;
+                if (basicOverhead > 0) {
+                    state.expenses.push({ id: Date.now(), name: 'General Overhead', amount: basicOverhead });
+                    renderExpenses();
+                }
+            }
+
+            document.body.classList.toggle('pro-mode');
+            updateProToggleUI();
+            saveState();
+            calculate();
+        }
+
+        function openPaywall() {
+            document.getElementById('paywall-modal').classList.remove('hidden');
+        }
+
+        function closePaywall() {
+            document.getElementById('paywall-modal').classList.add('hidden');
+        }
+
+        function activateCode() {
+            const input = document.getElementById('activation-code');
+            const code = input.value.trim().toUpperCase();
+            
+            if (code === 'LUXERATE_PRO_2026') {
+                localStorage.setItem('luxeRateProUnlocked', 'true');
+                state.isPurchased = true;
+                state.isPro = true;
+                
+                document.body.classList.add('pro-mode');
+                closePaywall();
+                updateProToggleUI();
+                saveState();
+                calculate();
+                
+                showSuccessModal();
+                input.value = '';
+            } else {
+                input.classList.add('border-red-300', 'bg-red-50');
+                setTimeout(() => {
+                    input.classList.remove('border-red-300', 'bg-red-50');
+                }, 2000);
+            }
+        }
+
+        function showSuccessModal() {
+            const successOverlay = document.createElement('div');
+            successOverlay.id = 'success-modal';
+            successOverlay.className = 'fixed inset-0 z-[60] flex items-center justify-center p-4 bg-white/90 backdrop-blur-md';
+            successOverlay.innerHTML = `
+                <div class="bg-white max-w-sm w-full p-10 rounded-3xl luxury-shadow border border-stone-100 text-center scale-95 opacity-0 transition-all duration-500 ease-out" id="success-content">
+                    <div class="mb-6 inline-flex bg-slate-900 text-white p-3 rounded-full">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                    </div>
+                    <h2 class="text-2xl font-bold text-slate-900 mb-2">Welcome to Pro</h2>
+                    <p class="text-slate-500 font-light text-sm mb-8">LuxeRate Pro has been successfully activated. Your financial blueprint is now elevated.</p>
+                    <button onclick="this.closest('#success-modal').remove()" class="w-full bg-slate-900 text-white py-4 rounded-xl font-medium tracking-wide hover:bg-slate-800 transition-all active:scale-95">
+                        Start Building
+                    </button>
+                </div>
+            `;
+            document.body.appendChild(successOverlay);
+            
+            // Trigger animation
+            setTimeout(() => {
+                const content = document.getElementById('success-content');
+                content.classList.remove('scale-95', 'opacity-0');
+                content.classList.add('scale-100', 'opacity-100');
+            }, 10);
+        }
+
+        function updateProToggleUI() {
+            const btn = document.getElementById('pro-toggle-btn');
+            const badge = document.getElementById('pro-badge');
+
+            if (!state.isPurchased) {
+                btn.textContent = 'Unlock LuxeRate Pro';
+                btn.classList.remove('bg-stone-100');
+                badge.classList.add('hidden');
+            } else {
+                btn.textContent = state.isPro ? 'Switch to Basic' : 'Switch to Pro';
+                btn.classList.toggle('bg-stone-100', state.isPro);
+                badge.classList.remove('hidden');
+            }
+        }
+
+        function addExpenseRow() {
+            state.expenses.push({ id: Date.now(), name: '', amount: 0 });
+            renderExpenses();
+            saveState();
+            calculate();
+        }
+
+        function removeExpenseRow(id) {
+            state.expenses = state.expenses.filter(e => e.id !== id);
+            renderExpenses();
+            saveState();
+            calculate();
+        }
+
+        function updateExpense(id, field, value) {
+            const exp = state.expenses.find(e => e.id === id);
+            if (exp) {
+                exp[field] = value;
+                saveState();
+                calculate();
+            }
+        }
+
+        function renderExpenses() {
+            const list = document.getElementById('expense-list');
+            list.innerHTML = '';
+            state.expenses.forEach(exp => {
+                const div = document.createElement('div');
+                div.className = 'flex gap-2 items-center';
+                div.innerHTML = `
+                    <input type="text" value="${exp.name}" placeholder="Expense name" oninput="updateExpense(${exp.id}, 'name', this.value)" class="flex-1 bg-stone-50 border-b border-stone-200 py-1 px-1 text-sm focus:outline-none focus:border-stone-400">
+                    <input type="number" value="${exp.amount}" placeholder="0" oninput="updateExpense(${exp.id}, 'amount', parseFloat(this.value) || 0)" class="w-20 bg-stone-50 border-b border-stone-200 py-1 px-1 text-sm focus:outline-none focus:border-stone-400 text-right">
+                    <button onclick="removeExpenseRow(${exp.id})" class="text-stone-300 hover:text-red-400 transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                    </button>
+                `;
+                list.appendChild(div);
+            });
+        }
+
+        function saveBlueprint() {
+            const name = document.getElementById('blueprint-name').value.trim() || `Blueprint ${state.blueprints.length + 1}`;
+            const blueprint = {
+                id: Date.now(),
+                name: name,
+                inputs: {
+                    netSalary: document.getElementById('net-salary').value,
+                    monthlyOverhead: document.getElementById('monthly-overhead').value,
+                    taxRate: document.getElementById('tax-rate').value,
+                    vacationWeeks: document.getElementById('vacation-weeks').value,
+                    billableHours: document.getElementById('billable-hours').value,
+                    currency: document.getElementById('currency').value,
+                    expenses: JSON.parse(JSON.stringify(state.expenses)),
+                    isPro: state.isPro
+                }
+            };
+            state.blueprints.push(blueprint);
+            document.getElementById('blueprint-name').value = '';
+            renderBlueprints();
+            saveState();
+        }
+
+        function loadBlueprint(id) {
+            const bp = state.blueprints.find(b => b.id === id);
+            if (bp) {
+                document.getElementById('net-salary').value = bp.inputs.netSalary;
+                document.getElementById('monthly-overhead').value = bp.inputs.monthlyOverhead;
+                document.getElementById('tax-rate').value = bp.inputs.taxRate;
+                document.getElementById('vacation-weeks').value = bp.inputs.vacationWeeks;
+                document.getElementById('billable-hours').value = bp.inputs.billableHours;
+                document.getElementById('currency').value = bp.inputs.currency;
+                state.expenses = JSON.parse(JSON.stringify(bp.inputs.expenses || []));
+                state.isPro = bp.inputs.isPro;
+                
+                if (state.isPro && state.isPurchased) document.body.classList.add('pro-mode');
+                else document.body.classList.remove('pro-mode');
+                
+                updateProToggleUI();
+                renderExpenses();
+                calculate();
+                saveState();
+            }
+        }
+
+        function deleteBlueprint(id) {
+            state.blueprints = state.blueprints.filter(b => b.id !== id);
+            renderBlueprints();
+            saveState();
+        }
+
+        function renderBlueprints() {
+            const list = document.getElementById('blueprint-list');
+            list.innerHTML = '';
+            if (state.blueprints.length === 0) {
+                list.innerHTML = '<p class="text-[10px] text-stone-400 italic">No blueprints saved yet.</p>';
+                return;
+            }
+            state.blueprints.forEach(bp => {
+                const div = document.createElement('div');
+                div.className = 'flex justify-between items-center bg-stone-50 p-3 rounded-lg group';
+                div.innerHTML = `
+                    <button onclick="loadBlueprint(${bp.id})" class="text-left flex-1">
+                        <span class="text-xs font-medium text-slate-700">${bp.name}</span>
+                        <span class="block text-[8px] text-stone-400 uppercase tracking-widest">${bp.inputs.isPro ? 'Pro' : 'Basic'} · ${bp.inputs.currency}</span>
+                    </button>
+                    <button onclick="deleteBlueprint(${bp.id})" class="text-stone-300 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-all">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
+                    </button>
+                `;
+                list.appendChild(div);
+            });
+        }
+
+        function calculate() {
+            const currencyCode = document.getElementById('currency').value;
+            const config = currencies[currencyCode];
+            const formatter = new Intl.NumberFormat(config.locale, {
+                style: 'currency',
+                currency: config.currency,
+                maximumFractionDigits: 0
+            });
+
+            const netSalary = parseFloat(document.getElementById('net-salary').value) || 0;
+            let monthlyOverhead;
+
+            if (state.isPro) {
+                monthlyOverhead = state.expenses.reduce((sum, exp) => sum + (parseFloat(exp.amount) || 0), 0);
+                document.getElementById('pro-overhead-sum').textContent = formatter.format(monthlyOverhead);
+            } else {
+                monthlyOverhead = parseFloat(document.getElementById('monthly-overhead').value) || 0;
+            }
+
+            const taxRate = parseFloat(document.getElementById('tax-rate').value) || 0;
+            const vacationWeeks = parseFloat(document.getElementById('vacation-weeks').value) || 0;
+            const billableHoursPerWeek = parseFloat(document.getElementById('billable-hours').value) || 0;
+
+            const annualOverhead = monthlyOverhead * 12;
+            const taxMultiplier = 1 / (1 - (taxRate / 100));
+            const grossRevenueNeeded = (netSalary + annualOverhead) * taxMultiplier;
+            const totalWeeks = Math.max(0, 52 - vacationWeeks);
+            const totalBillableHours = totalWeeks * billableHoursPerWeek;
+            
+            let hourlyRate = 0;
+            if (totalBillableHours > 0) {
+                hourlyRate = grossRevenueNeeded / totalBillableHours;
+            }
+
+            const annualTaxes = grossRevenueNeeded - netSalary - annualOverhead;
+            const baseline = hourlyRate * 10;
+
+            // Update UI
+            document.getElementById('display-hourly-rate').textContent = formatter.format(hourlyRate);
+            document.getElementById('display-baseline').textContent = formatter.format(baseline);
+            document.getElementById('display-gross').textContent = formatter.format(grossRevenueNeeded);
+            document.getElementById('display-taxes').textContent = formatter.format(annualTaxes);
+            document.getElementById('display-overhead').textContent = formatter.format(annualOverhead);
+            
+            saveState();
+        }
+
+        function shareLink(e) {
+            const url = window.location.href;
+            const text = "Just calculated my sustainable freelance rate with LuxeRate! Check it out: " + url;
+            navigator.clipboard.writeText(text).then(() => {
+                const btn = e.currentTarget;
+                const originalText = btn.textContent;
+                btn.textContent = "Copied!";
+                setTimeout(() => btn.textContent = originalText, 2000);
+            });
+        }
+
+        // Initialize and listen for changes
+        inputs.forEach(id => {
+            const el = document.getElementById(id);
+            if (el) {
+                el.addEventListener('input', calculate);
+                if (el.tagName === 'SELECT') el.addEventListener('change', calculate);
+            }
+        });
+
+        // Set current date
+        const dateOptions = { year: 'numeric', month: 'long', day: 'numeric' };
+        document.getElementById('current-date').textContent = new Date().toLocaleDateString(undefined, dateOptions);
+
+        // Initial load and calculation
+        loadState();
+        calculate();
+    </script>
+</body>
+</html>
